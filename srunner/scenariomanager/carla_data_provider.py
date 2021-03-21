@@ -553,6 +553,24 @@ class CarlaDataProvider(object):  # pylint: disable=too-many-public-methods
         return actor
 
     @staticmethod
+    def find_existing_actor(rolename='ego_vehicle'):
+        """
+        This method tries to find an existing actor, returning it if successful (None otherwise).
+        """
+        if CarlaDataProvider._world is None:
+            CarlaDataProvider._world = CarlaDataProvider.get_world()
+            return None
+            
+        for actor in CarlaDataProvider._world.get_actors():
+            if actor.attributes.get('role_name') == rolename:
+            # if 'vehicle' in actor.type_id:
+                CarlaDataProvider._carla_actor_pool[actor.id] = actor
+                CarlaDataProvider.register_actor(actor)
+                return actor
+        
+        return None
+
+    @staticmethod
     def request_new_actors(actor_list):
         """
         This method tries to series of actor in batch. If this was successful,

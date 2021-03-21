@@ -8,7 +8,7 @@
     <SceneGraphFile filepath=""/>
   </RoadNetwork>
   <Entities>
-    <ScenarioObject name="hero">
+    <ScenarioObject name="ego_vehicle">
       <Vehicle name="vehicle.lincoln.mkz2017" vehicleCategory="car">
         <ParameterDeclarations/>
         <Performance maxSpeed="69.444" maxAcceleration="200" maxDeceleration="10.0"/>

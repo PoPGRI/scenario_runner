@@ -37,6 +37,7 @@ from srunner.scenariomanager.carla_data_provider import CarlaDataProvider
 from srunner.scenariomanager.scenario_manager import ScenarioManager
 from srunner.scenarios.open_scenario import OpenScenario
 from srunner.scenarios.route_scenario import RouteScenario
+from srunner.scenarios.fi_scenario import FIScenario
 from srunner.tools.scenario_parser import ScenarioConfigurationParser
 from srunner.tools.route_parser import RouteParser
 
@@ -299,8 +300,9 @@ class ScenarioRunner(object):
         """
         Load a new CARLA world and provide data to CarlaDataProvider
         """
-
+        print("============= load and wait for world")
         if self._args.reloadWorld:
+            print("============= world reloading")
             self.world = self.client.load_world(town)
         else:
             # if the world should not be reloaded, wait at least until all ego vehicles are ready
@@ -309,6 +311,7 @@ class ScenarioRunner(object):
                 while not ego_vehicle_found and not self._shutdown_requested:
                     vehicles = self.client.get_world().get_actors().filter('vehicle.*')
                     for ego_vehicle in ego_vehicles:
+                        print("============= Enter here")
                         ego_vehicle_found = False
                         for vehicle in vehicles:
                             if vehicle.attributes['role_name'] == ego_vehicle.rolename:
@@ -356,6 +359,7 @@ class ScenarioRunner(object):
             return False
 
         if self._args.agent:
+            print("============= create agent")
             agent_class_name = self.module_agent.__name__.title().replace('_', '')
             try:
                 self.agent_instance = getattr(self.module_agent, agent_class_name)(self._args.agentConfig)
@@ -377,6 +381,7 @@ class ScenarioRunner(object):
                                         config_file=self._args.openscenario,
                                         timeout=100000)
             elif self._args.route:
+                print("============= create route scenario")
                 scenario = RouteScenario(world=self.world,
                                          config=config,
                                          debug_mode=self._args.debug)
@@ -578,7 +583,7 @@ def main():
         return 1
 
     if arguments.route:
-        arguments.reloadWorld = True
+        arguments.reloadWorld = False
 
     if arguments.agent:
         arguments.sync = True

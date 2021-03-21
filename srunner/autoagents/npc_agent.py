@@ -72,7 +72,7 @@ class NpcAgent(AutonomousAgent):
         if not self._agent:
             hero_actor = None
             for actor in CarlaDataProvider.get_world().get_actors():
-                if 'role_name' in actor.attributes and actor.attributes['role_name'] == 'hero':
+                if 'role_name' in actor.attributes and actor.attributes['role_name'] == 'ego_vehicle':
                     hero_actor = actor
                     break
             if hero_actor:
