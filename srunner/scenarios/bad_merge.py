@@ -94,14 +94,14 @@ class BadMerge(BasicScenario):
 
         first_vehicle_waypoint, _ = get_waypoint_in_distance(self._reference_waypoint, self._first_vehicle_location)
         self._other_actor_transform = carla.Transform(
-            carla.Location(first_vehicle_waypoint.transform.location.x,
-                           first_vehicle_waypoint.transform.location.y + 30,
-                           first_vehicle_waypoint.transform.location.z + 0.1),
-            first_vehicle_waypoint.transform.rotation)
+            carla.Location(82.58187866210938,
+                           20.49610137939453,
+                           0.1),
+            carla.Rotation(0, 97.6387634277, 0))
         first_vehicle_transform = carla.Transform(
-            carla.Location(self._other_actor_transform.location.x ,
-                           self._other_actor_transform.location.y + 30,
-                           self._other_actor_transform.location.z - 500),
+            carla.Location(82.58187866210938,
+                           20.49610137939453,
+                           0.1),
             self._other_actor_transform.rotation)
         first_vehicle = CarlaDataProvider.request_new_actor('vehicle.tesla.model3',
                                                             first_vehicle_transform)
@@ -135,34 +135,31 @@ class BadMerge(BasicScenario):
         #                                                              parameters={"max_speed": self._first_vehicle_speed}))
         # start_driving.add_child(KeepVelocity(self.other_actors[0], self._first_vehicle_speed))
 
-        merge_left = py_trees.composites.Sequence("Merge Lane")
+        merge_left = py_trees.composites.Sequence("Drive Straight")
         merge_left.add_child(InTriggerDistanceToVehicle(self.other_actors[0],
                                                                           self.ego_vehicles[0],
                                                                           distance=10,
                                                                           name="Distance"))
-        merge_left.add_child(LaneChange(self.other_actors[0],
-                                                                 direction="left",
-                                                                 distance_same_lane=0,
-                                                                 distance_other_lane=200,
-                                                                 distance_lane_change=5,
-                                                                 speed=20))
+        merge_left.add_child(ChangeAutoPilot(self.other_actors[0], True, 
+                                                                     parameters={"max_speed": self._first_vehicle_speed}))
+        merge_left.add_child(KeepVelocity(self.other_actors[0], self._first_vehicle_speed))
 
-        merge_right = py_trees.composites.Sequence("Merge Lane")
-        merge_right.add_child(InTriggerDistanceToVehicle(self.other_actors[0],
-                                                                          self.ego_vehicles[0],
-                                                                          distance=10,
-                                                                          name="Distance"))
-        merge_right.add_child(LaneChange(self.other_actors[0],
-                                                                 direction="right",
-                                                                 distance_same_lane=0,
-                                                                 distance_other_lane=200,
-                                                                 distance_lane_change=5,
-                                                                 speed=20))
+        # merge_right = py_trees.composites.Sequence("Merge Lane")
+        # merge_right.add_child(InTriggerDistanceToVehicle(self.other_actors[0],
+        #                                                                   self.ego_vehicles[0],
+        #                                                                   distance=10,
+        #                                                                   name="Distance"))
+        # merge_right.add_child(LaneChange(self.other_actors[0],
+        #                                                          direction="right",
+        #                                                          distance_same_lane=0,
+        #                                                          distance_other_lane=200,
+        #                                                          distance_lane_change=5,
+        #                                                          speed=20))
 
         # construct scenario
         # driving_forward_and_change_lane.add_child(start_driving)
         driving_forward_and_change_lane.add_child(merge_left)
-        driving_forward_and_change_lane.add_child(merge_right)
+        # driving_forward_and_change_lane.add_child(merge_right)
 
         # end condition
         endcondition = py_trees.composites.Parallel("Waiting for end position",

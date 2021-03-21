@@ -165,13 +165,17 @@ class RouteParser(object):
             dpos = math.sqrt(dx * dx + dy * dy + dz * dz)
 
             dyaw = (float(waypoint1['yaw']) - wtransform.rotation.yaw) % 360
-
+            print(">>>>>>>>>>", dpos, dyaw)
             return dpos < TRIGGER_THRESHOLD \
                 and (dyaw < TRIGGER_ANGLE_THRESHOLD or dyaw > (360 - TRIGGER_ANGLE_THRESHOLD))
 
         match_position = 0
         # TODO this function can be optimized to run on Log(N) time
         for route_waypoint in route_description:
+            if match_position == 70:
+                print("stop here")
+            if match_position == 90:
+                print("stop here")
             if match_waypoints(world_location, route_waypoint[0]):
                 return match_position
             match_position += 1
