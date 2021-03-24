@@ -1,0 +1,22 @@
+{
+    "available_scenarios": [
+        {
+            "t1_triple": [
+                {
+                    "available_event_configurations": [
+                        {
+                            "transform": {
+                                "pitch": "0",
+                                "x": "93.1460952758789",
+                                "y": "-1.4191741943359375",
+                                "yaw": "133.83380126953125",
+                                "z": "1.22"
+                            }
+                        }
+                    ],
+                    "scenario_type": "ScenarioBM"
+                }
+            ]
+        }
+    ]
+}
