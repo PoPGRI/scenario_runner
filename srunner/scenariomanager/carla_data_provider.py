@@ -782,19 +782,19 @@ class CarlaDataProvider(object):  # pylint: disable=too-many-public-methods
         DestroyActor = carla.command.DestroyActor       # pylint: disable=invalid-name
         batch = []
 
-        for actor_id in CarlaDataProvider._carla_actor_pool.copy():
-            actor = CarlaDataProvider._carla_actor_pool[actor_id]
-            if actor.is_alive:
-                batch.append(DestroyActor(actor))
+        # for actor_id in CarlaDataProvider._carla_actor_pool.copy():
+        #     actor = CarlaDataProvider._carla_actor_pool[actor_id]
+        #     if actor.is_alive:
+        #         batch.append(DestroyActor(actor))
 
-        if CarlaDataProvider._client:
-            try:
-                CarlaDataProvider._client.apply_batch_sync(batch)
-            except RuntimeError as e:
-                if "time-out" in str(e):
-                    pass
-                else:
-                    raise e
+        # if CarlaDataProvider._client:
+        #     try:
+        #         CarlaDataProvider._client.apply_batch_sync(batch)
+        #     except RuntimeError as e:
+        #         if "time-out" in str(e):
+        #             pass
+        #         else:
+        #             raise e
 
         CarlaDataProvider._actor_velocity_map.clear()
         CarlaDataProvider._actor_location_map.clear()

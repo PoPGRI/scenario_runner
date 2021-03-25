@@ -63,7 +63,8 @@ class BadMerge(BasicScenario):
         self._map = CarlaDataProvider.get_map()
         self._first_vehicle_location = 0
         self._first_vehicle_speed = 20
-        self._reference_waypoint = self._map.get_waypoint(config.trigger_points[0].location)
+        self._reference_waypoint = self._map.get_waypoint(
+            config.trigger_points[0].location)
         self._other_actor_max_brake = 1.0
         self._other_actor_stop_in_front_intersection = 20
         self._other_actor_transform = None
@@ -71,11 +72,11 @@ class BadMerge(BasicScenario):
         self.timeout = timeout
 
         super(BadMerge, self).__init__("BadMerge",
-                                                   ego_vehicles,
-                                                   config,
-                                                   world,
-                                                   debug_mode,
-                                                   criteria_enable=criteria_enable)
+                                       ego_vehicles,
+                                       config,
+                                       world,
+                                       debug_mode,
+                                       criteria_enable=criteria_enable)
 
         if randomize:
             self._ego_other_distance_start = random.randint(4, 8)
@@ -92,7 +93,8 @@ class BadMerge(BasicScenario):
         Custom initialization
         """
 
-        first_vehicle_waypoint, _ = get_waypoint_in_distance(self._reference_waypoint, self._first_vehicle_location)
+        first_vehicle_waypoint, _ = get_waypoint_in_distance(
+            self._reference_waypoint, self._first_vehicle_location)
         self._other_actor_transform = carla.Transform(
             carla.Location(82.58187866210938,
                            20.49610137939453,
@@ -120,29 +122,31 @@ class BadMerge(BasicScenario):
 
         # to avoid the other actor blocking traffic, it was spawed elsewhere
         # reset its pose to the required one
-        start_transform = ActorTransformSetter(self.other_actors[0], self._other_actor_transform)
+        start_transform = ActorTransformSetter(
+            self.other_actors[0], self._other_actor_transform)
 
         # let the other actor drive and catch up, and perform a dangerous merge lane
         driving_forward_and_change_lane = py_trees.composites.Parallel("Driving forward and chagne lane",
-            policy=py_trees.common.ParallelPolicy.SUCCESS_ON_ALL)
+                                                                       policy=py_trees.common.ParallelPolicy.SUCCESS_ON_ALL)
 
         # start_driving = py_trees.composites.Sequence("Start Driving")
         # start_driving.add_child(InTriggerDistanceToVehicle(self.other_actors[0],
         #                                                                   self.ego_vehicles[0],
         #                                                                   distance=20,
         #                                                                   name="Distance"))
-        # start_driving.add_child(ChangeAutoPilot(self.other_actors[0], True, 
+        # start_driving.add_child(ChangeAutoPilot(self.other_actors[0], True,
         #                                                              parameters={"max_speed": self._first_vehicle_speed}))
         # start_driving.add_child(KeepVelocity(self.other_actors[0], self._first_vehicle_speed))
 
         merge_left = py_trees.composites.Sequence("Drive Straight")
         merge_left.add_child(InTriggerDistanceToVehicle(self.other_actors[0],
-                                                                          self.ego_vehicles[0],
-                                                                          distance=10,
-                                                                          name="Distance"))
-        merge_left.add_child(ChangeAutoPilot(self.other_actors[0], True, 
-                                                                     parameters={"max_speed": self._first_vehicle_speed}))
-        merge_left.add_child(KeepVelocity(self.other_actors[0], self._first_vehicle_speed))
+                                                        self.ego_vehicles[0],
+                                                        distance=10,
+                                                        name="Distance"))
+        merge_left.add_child(ChangeAutoPilot(self.other_actors[0], True,
+                                             parameters={"max_speed": self._first_vehicle_speed}))
+        merge_left.add_child(KeepVelocity(
+            self.other_actors[0], self._first_vehicle_speed))
 
         # merge_right = py_trees.composites.Sequence("Merge Lane")
         # merge_right.add_child(InTriggerDistanceToVehicle(self.other_actors[0],
@@ -164,7 +168,8 @@ class BadMerge(BasicScenario):
         # end condition
         endcondition = py_trees.composites.Parallel("Waiting for end position",
                                                     policy=py_trees.common.ParallelPolicy.SUCCESS_ON_ALL)
-        endcondition_part = StandStill(self.ego_vehicles[0], name="StandStill", duration=15)
+        endcondition_part = StandStill(
+            self.ego_vehicles[0], name="StandStill", duration=15)
         endcondition.add_child(endcondition_part)
 
         # Build behavior tree

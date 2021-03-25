@@ -373,25 +373,10 @@ class ScenarioRunner(object):
         # Prepare scenario
         print("Preparing scenario: " + config.name)
         try:
-            self._prepare_ego_vehicles(config.ego_vehicles)
-            if self._args.openscenario:
-                scenario = OpenScenario(world=self.world,
-                                        ego_vehicles=self.ego_vehicles,
+            print("============= create route scenario")
+            scenario = RouteScenario(world=self.world,
                                         config=config,
-                                        config_file=self._args.openscenario,
-                                        timeout=100000)
-            elif self._args.route:
-                print("============= create route scenario")
-                scenario = RouteScenario(world=self.world,
-                                         config=config,
-                                         debug_mode=self._args.debug)
-            else:
-                scenario_class = self._get_scenario_class_or_fail(config.type)
-                scenario = scenario_class(self.world,
-                                          self.ego_vehicles,
-                                          config,
-                                          self._args.randomize,
-                                          self._args.debug)
+                                        debug_mode=self._args.debug)
         except Exception as exception:                  # pylint: disable=broad-except
             print("The scenario cannot be loaded")
             traceback.print_exc()
@@ -495,13 +480,7 @@ class ScenarioRunner(object):
         Run all scenarios according to provided commandline args
         """
         result = True
-        if self._args.openscenario:
-            result = self._run_openscenario()
-        elif self._args.route:
-            result = self._run_route()
-        else:
-            result = self._run_scenarios()
-
+        result = self._run_route()
         print("No more scenarios .... Exiting")
         return result
 

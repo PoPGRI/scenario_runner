@@ -89,6 +89,7 @@ class ScenarioManager(object):
             self._agent.cleanup()
             self._agent = None
 
+        # TODO: Properly remove this line to destroy actors
         CarlaDataProvider.cleanup()
 
     def load_scenario(self, scenario, agent=None):
@@ -164,11 +165,11 @@ class ScenarioManager(object):
             GameTime.on_carla_tick(timestamp)
             CarlaDataProvider.on_carla_tick()
 
-            if self._agent is not None:
-                ego_action = self._agent()
+            # if self._agent is not None:
+                # ego_action = self._agent()
 
-            if self._agent is not None:
-                self.ego_vehicles[0].apply_control(ego_action)
+            # if self._agent is not None:
+            #     self.ego_vehicles[0].apply_control(ego_action)
 
             # Tick scenario
             self.scenario_tree.tick_once()
