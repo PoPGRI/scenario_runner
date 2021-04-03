@@ -68,6 +68,7 @@ class BadMerge(BasicScenario):
         self._other_actor_max_brake = 1.0
         self._other_actor_stop_in_front_intersection = 20
         self._other_actor_transform = None
+        self.world = world
         # Timeout of scenario in seconds
         self.timeout = timeout
 
@@ -78,8 +79,8 @@ class BadMerge(BasicScenario):
                                        debug_mode,
                                        criteria_enable=criteria_enable)
 
-        if randomize:
-            self._ego_other_distance_start = random.randint(4, 8)
+        # if randomize:
+        #     self._ego_other_distance_start = random.randint(4, 8)
 
             # Example code how to randomize start location
             # distance = random.randint(20, 80)
@@ -93,18 +94,26 @@ class BadMerge(BasicScenario):
         Custom initialization
         """
 
-        first_vehicle_waypoint, _ = get_waypoint_in_distance(
-            self._reference_waypoint, self._first_vehicle_location)
-        self._other_actor_transform = carla.Transform(
-            carla.Location(82.58187866210938,
-                           20.49610137939453,
-                           0.1),
-            carla.Rotation(0, 97.6387634277, 0))
-        first_vehicle_transform = carla.Transform(
-            carla.Location(82.58187866210938,
-                           20.49610137939453,
-                           0.1),
-            self._other_actor_transform.rotation)
+        # first_vehicle_waypoint, _ = get_waypoint_in_distance(
+            # self._reference_waypoint, self._first_vehicle_location)
+        # TODO change the spawn location of other actor
+        # try to use get waypoint on lane
+        ego_vehicle_waypoint = self.world.get_map().get_waypoint(self.ego_vehicles[0].get_location(), project_to_road=True, lane_type=carla.LaneType.Driving)
+        
+        # self._other_actor_transform = carla.Transform(
+        #     carla.Location(82.58187866210938,
+        #                    20.49610137939453,
+        #                    0.1),
+        #     carla.Rotation(0, 97.6387634277, 0))
+        # first_vehicle_transform = carla.Transform(
+        #     carla.Location(82.58187866210938,
+        #                    20.49610137939453,
+        #                    0.1),
+        #     self._other_actor_transform.rotation)
+        first_vehicle_transform = ego_vehicle_waypoint.next(30)[0].transform
+        self._other_actor_transform = first_vehicle_transform
+        # print("============ list: ", ego_vehicle_waypoint.next(30))
+        print("============ first vehicle: ", first_vehicle_transform)
         first_vehicle = CarlaDataProvider.request_new_actor('vehicle.tesla.model3',
                                                             first_vehicle_transform)
         first_vehicle.set_simulate_physics(enabled=True)
@@ -127,7 +136,7 @@ class BadMerge(BasicScenario):
 
         # let the other actor drive and catch up, and perform a dangerous merge lane
         driving_forward_and_change_lane = py_trees.composites.Parallel("Driving forward and chagne lane",
-                                                                       policy=py_trees.common.ParallelPolicy.SUCCESS_ON_ALL)
+                                                                       policy=py_trees.common.ParallelPolicy.SUCCESS_ON_ONE)
 
         # start_driving = py_trees.composites.Sequence("Start Driving")
         # start_driving.add_child(InTriggerDistanceToVehicle(self.other_actors[0],

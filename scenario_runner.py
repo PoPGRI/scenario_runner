@@ -357,17 +357,17 @@ class ScenarioRunner(object):
             self._cleanup()
             return False
 
-        if self._args.agent:
-            print("============= create agent")
-            agent_class_name = self.module_agent.__name__.title().replace('_', '')
-            try:
-                self.agent_instance = getattr(self.module_agent, agent_class_name)(self._args.agentConfig)
-                config.agent = self.agent_instance
-            except Exception as e:          # pylint: disable=broad-except
-                traceback.print_exc()
-                print("Could not setup required agent due to {}".format(e))
-                self._cleanup()
-                return False
+        # if self._args.agent:
+        #     print("============= create agent")
+        #     agent_class_name = self.module_agent.__name__.title().replace('_', '')
+        #     try:
+        #         self.agent_instance = getattr(self.module_agent, agent_class_name)(self._args.agentConfig)
+        #         config.agent = self.agent_instance
+        #     except Exception as e:          # pylint: disable=broad-except
+        #         traceback.print_exc()
+        #         print("Could not setup required agent due to {}".format(e))
+        #         self._cleanup()
+        #         return False
 
         # Prepare scenario
         print("Preparing scenario: " + config.name)
@@ -390,6 +390,8 @@ class ScenarioRunner(object):
                 self.client.start_recorder(recorder_name, True)
 
             # Load scenario and run it
+            print("========== scenario behavior children: ", scenario.scenario.behavior)
+            print("========== scenario scenario tree children: ", scenario.scenario.scenario_tree.children)
             self.manager.load_scenario(scenario, self.agent_instance)
             self.manager.run_scenario()
 
@@ -412,28 +414,6 @@ class ScenarioRunner(object):
         self._cleanup()
         return result
 
-    def _run_scenarios(self):
-        """
-        Run conventional scenarios (e.g. implemented using the Python API of ScenarioRunner)
-        """
-        result = False
-
-        # Load the scenario configurations provided in the config file
-        scenario_configurations = ScenarioConfigurationParser.parse_scenario_configuration(
-            self._args.scenario,
-            self._args.configFile)
-        if not scenario_configurations:
-            print("Configuration for scenario {} cannot be found!".format(self._args.scenario))
-            return result
-
-        # Execute each configuration
-        for config in scenario_configurations:
-            for _ in range(self._args.repetitions):
-                result = self._load_and_run_scenario(config)
-
-            self._cleanup()
-        return result
-
     def _run_route(self):
         """
         Run the route scenario
@@ -449,29 +429,11 @@ class ScenarioRunner(object):
 
         # retrieve routes
         route_configurations = RouteParser.parse_routes_file(routes, scenario_file, single_route)
-
         for config in route_configurations:
             for _ in range(self._args.repetitions):
                 result = self._load_and_run_scenario(config)
 
                 self._cleanup()
-        return result
-
-    def _run_openscenario(self):
-        """
-        Run a scenario based on OpenSCENARIO
-        """
-
-        # Load the scenario configurations provided in the config file
-        if not os.path.isfile(self._args.openscenario):
-            print("File does not exist")
-            self._cleanup()
-            return False
-
-        config = OpenScenarioConfiguration(self._args.openscenario, self.client)
-
-        result = self._load_and_run_scenario(config)
-        self._cleanup()
         return result
 
     def run(self):

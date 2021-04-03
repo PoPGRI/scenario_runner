@@ -151,21 +151,29 @@ class RouteScenario(BasicScenario):
 
         self.config = config
         self.route = None
-        self.sampled_scenarios_definitions = None
-
+        # self.sampled_scenarios_definitions = None
+        self.scenario_definitions = []
+        self.world = world
         self._update_route(world, config, debug_mode)
 
-        ego_vehicle = self._find_ego_vehicle()
+        self.ego_vehicle = self._find_ego_vehicle()
 
-        self.list_scenarios = self._build_scenario_instances(world,
-                                                             ego_vehicle,
-                                                             self.sampled_scenarios_definitions,
+        # TODO change buld scenario instance function header to take class variables
+        # self.list_scenarios = self._build_scenario_instances(world,
+        #                                                      ego_vehicle,
+        #                                                      self.scenario_definitions,
+        #                                                      scenarios_per_tick=5,
+        #                                                      timeout=self.timeout,
+        #                                                      debug_mode=debug_mode)
+        self.list_scenarios = self._build_scenario_instances(# world,
+                                                             # ego_vehicle,
+                                                             # self.scenario_definitions,
                                                              scenarios_per_tick=5,
                                                              timeout=self.timeout,
                                                              debug_mode=debug_mode)
 
         super(RouteScenario, self).__init__(name=config.name,
-                                            ego_vehicles=[ego_vehicle],
+                                            ego_vehicles=[self.ego_vehicle],
                                             config=config,
                                             world=world,
                                             debug_mode=False,
@@ -183,7 +191,7 @@ class RouteScenario(BasicScenario):
 
         # Transform the scenario file into a dictionary
         world_annotations = RouteParser.parse_annotations_file(config.scenario_file)
-
+        # print("========== world annotations: ", world_annotations)
         # prepare route's trajectory (interpolate and add the GPS route)
         gps_route, route = interpolate_trajectory(world, config.trajectory)
 
@@ -196,8 +204,12 @@ class RouteScenario(BasicScenario):
             config.agent.set_global_plan(gps_route, self.route)
 
         # Sample the scenarios to be used for this route instance.
-        self.sampled_scenarios_definitions = self._scenario_sampling(potential_scenarios_definitions)
-
+        # print("=========== potential scenario: ", potential_scenarios_definitions)
+        # self.sampled_scenarios_definitions = self._scenario_sampling(potential_scenarios_definitions)
+        for trigger in potential_scenarios_definitions.keys():
+            self.scenario_definitions.append(potential_scenarios_definitions[trigger][0])
+        
+        # print("=========== sampled scenario: ", self.scenario_definitions)
         # Timeout of scenario in seconds
         self.timeout = self._estimate_route_timeout()
 
@@ -307,23 +319,24 @@ class RouteScenario(BasicScenario):
 
         return sampled_scenarios
 
-    def _build_scenario_instances(self, world, ego_vehicle, scenario_definitions,
-                                  scenarios_per_tick=5, timeout=300, debug_mode=False):
+    # def _build_scenario_instances(self, world, ego_vehicle, scenario_definitions,
+    #                               scenarios_per_tick=5, timeout=300, debug_mode=False):
+    def _build_scenario_instances(self, scenarios_per_tick=5, timeout=300, debug_mode=False):
         """
         Based on the parsed route and possible scenarios, build all the scenario classes.
         """
         scenario_instance_vec = []
 
         if debug_mode:
-            for scenario in scenario_definitions:
+            for scenario in self.scenario_definitions:
                 loc = carla.Location(scenario['trigger_position']['x'],
                                      scenario['trigger_position']['y'],
                                      scenario['trigger_position']['z']) + carla.Location(z=2.0)
-                world.debug.draw_point(loc, size=0.3, color=carla.Color(255, 0, 0), life_time=100000)
-                world.debug.draw_string(loc, str(scenario['name']), draw_shadow=False,
+                self.world.debug.draw_point(loc, size=0.3, color=carla.Color(255, 0, 0), life_time=100000)
+                self.world.debug.draw_string(loc, str(scenario['name']), draw_shadow=False,
                                         color=carla.Color(0, 0, 255), life_time=100000, persistent_lines=True)
 
-        for scenario_number, definition in enumerate(scenario_definitions):
+        for scenario_number, definition in enumerate(self.scenario_definitions):
             # Get the class possibilities for this scenario number
             scenario_class = NUMBER_CLASS_TRANSLATION[definition['name']]
 
@@ -342,20 +355,20 @@ class RouteScenario(BasicScenario):
 
             # NOTE: Need to change vehicle model and role name to match those of actual ego_vehicle 
             scenario_configuration.ego_vehicles = [ActorConfigurationData('vehicle.lincoln.mkz2017',
-                                                                          ego_vehicle.get_transform(),
+                                                                          self.ego_vehicle.get_transform(),
                                                                           'hero')]
             route_var_name = "ScenarioRouteNumber{}".format(scenario_number)
             scenario_configuration.route_var_name = route_var_name
 
             try:
-                scenario_instance = scenario_class(world, [ego_vehicle], scenario_configuration,
+                scenario_instance = scenario_class(self.world, [self.ego_vehicle], scenario_configuration,
                                                    criteria_enable=False, timeout=timeout)
                 # Do a tick every once in a while to avoid spawning everything at the same time
                 if scenario_number % scenarios_per_tick == 0:
                     if CarlaDataProvider.is_sync_mode():
-                        world.tick()
+                        self.world.tick()
                     else:
-                        world.wait_for_tick()
+                        self.world.wait_for_tick()
 
                 scenario_number += 1
             except Exception as e:      # pylint: disable=broad-except
@@ -445,7 +458,7 @@ class RouteScenario(BasicScenario):
         behavior = py_trees.composites.Parallel(policy=py_trees.common.ParallelPolicy.SUCCESS_ON_ONE)
 
         subbehavior = py_trees.composites.Parallel(name="Behavior",
-                                                   policy=py_trees.common.ParallelPolicy.SUCCESS_ON_ALL)
+                                                   policy=py_trees.common.ParallelPolicy.SUCCESS_ON_ONE)
 
         scenario_behaviors = []
         blackboard_list = []
@@ -453,6 +466,7 @@ class RouteScenario(BasicScenario):
         for i, scenario in enumerate(self.list_scenarios):
             if scenario.scenario.behavior is not None:
                 route_var_name = scenario.config.route_var_name
+                # print("======== route var name: ", route_var_name)
                 if route_var_name is not None:
                     scenario_behaviors.append(scenario.scenario.behavior)
                     blackboard_list.append([scenario.config.route_var_name,
@@ -472,7 +486,8 @@ class RouteScenario(BasicScenario):
             scenario_trigger_distance,
             repeat_scenarios=False
         )
-
+        # print("======== scenario behaviors: ", scenario_behaviors)
+        # print("======== trigger stuff: ", self.ego_vehicles[0], self.route, blackboard_list)
         subbehavior.add_child(scenario_triggerer)  # make ScenarioTriggerer the first thing to be checked
         subbehavior.add_children(scenario_behaviors)
         subbehavior.add_child(Idle())  # The behaviours cannot make the route scenario stop
@@ -493,7 +508,7 @@ class RouteScenario(BasicScenario):
         route_criterion = InRouteTest(self.ego_vehicles[0],
                                       route=route,
                                       offroad_max=30,
-                                      terminate_on_failure=True)
+                                      terminate_on_failure=False)
 
         completion_criterion = RouteCompletionTest(self.ego_vehicles[0], route=route)
 
@@ -506,7 +521,7 @@ class RouteScenario(BasicScenario):
         blocked_criterion = ActorSpeedAboveThresholdTest(self.ego_vehicles[0],
                                                          speed_threshold=0.1,
                                                          below_threshold_max_time=90.0,
-                                                         terminate_on_failure=True)
+                                                         terminate_on_failure=False)
 
         criteria.append(completion_criterion)
         criteria.append(collision_criterion)
