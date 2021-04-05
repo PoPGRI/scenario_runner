@@ -180,9 +180,10 @@ class ScenarioManager(object):
                 sys.stdout.flush()
 
             if self.scenario_tree.status != py_trees.common.Status.RUNNING:
-                self.scenario_class._build_scenario_instances()
-                self._create_behavior()
-                self._running = False
+                print("=============== scenario tree status: ", self.scenario_tree.status)
+                self.scenario_class.list_scenarios = self.scenario_class._build_scenario_instances()
+                self.scenario_tree.add_child(self.scenario_class._create_behavior())
+                # self._running = False
 
         if self._sync_mode and self._running and self._watchdog.get_status():
             CarlaDataProvider.get_world().tick()

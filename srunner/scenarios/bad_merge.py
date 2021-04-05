@@ -110,7 +110,7 @@ class BadMerge(BasicScenario):
         #                    20.49610137939453,
         #                    0.1),
         #     self._other_actor_transform.rotation)
-        first_vehicle_transform = ego_vehicle_waypoint.next(30)[0].transform
+        first_vehicle_transform = ego_vehicle_waypoint.next(80)[0].transform
         self._other_actor_transform = first_vehicle_transform
         # print("============ list: ", ego_vehicle_waypoint.next(30))
         print("============ first vehicle: ", first_vehicle_transform)

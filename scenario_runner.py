@@ -339,10 +339,7 @@ class ScenarioRunner(object):
         # Wait for the world to be ready
         if CarlaDataProvider.is_sync_mode():
             self.world.tick()
-        else:
-            self.world.wait_for_tick()
-        if CarlaDataProvider.get_map().name != town and CarlaDataProvider.get_map().name != "OpenDriveMap":
-            print("The CARLA server uses the wrong map: {}".format(CarlaDataProvider.get_map().name))
+        if CarlaDataProvider.get_map().name != town and CarlaDataProvider.get_map().name != "OpenDriveMap":            
             print("This scenario requires to use map: {}".format(town))
             return False
 
