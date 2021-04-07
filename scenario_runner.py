@@ -37,7 +37,6 @@ from srunner.scenariomanager.carla_data_provider import CarlaDataProvider
 from srunner.scenariomanager.scenario_manager import ScenarioManager
 from srunner.scenarios.open_scenario import OpenScenario
 from srunner.scenarios.route_scenario import RouteScenario
-from srunner.scenarios.fi_scenario import FIScenario
 from srunner.tools.scenario_parser import ScenarioConfigurationParser
 from srunner.tools.route_parser import RouteParser
 

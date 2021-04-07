@@ -70,6 +70,7 @@ class BadMerge(BasicScenario):
         self._other_actor_transform = None
         # Timeout of scenario in seconds
         self.timeout = timeout
+        self.world = world
 
         super(BadMerge, self).__init__("BadMerge",
                                        ego_vehicles,
@@ -93,22 +94,34 @@ class BadMerge(BasicScenario):
         Custom initialization
         """
 
-        first_vehicle_waypoint, _ = get_waypoint_in_distance(
-            self._reference_waypoint, self._first_vehicle_location)
-        self._other_actor_transform = carla.Transform(
-            carla.Location(82.58187866210938,
-                           20.49610137939453,
-                           0.1),
-            carla.Rotation(0, 97.6387634277, 0))
-        first_vehicle_transform = carla.Transform(
-            carla.Location(82.58187866210938,
-                           20.49610137939453,
-                           0.1),
-            self._other_actor_transform.rotation)
+        ego_vehicle_waypoint = self.world.get_map().get_waypoint(self.ego_vehicles[0].get_location(), project_to_road=True, lane_type=carla.LaneType.Driving)
+
+        # first_vehicle_waypoint, _ = get_waypoint_in_distance(
+        #     self._reference_waypoint, self._first_vehicle_location)
+        # self._other_actor_transform = carla.Transform(
+        #     carla.Location(82.58187866210938,
+        #                    20.49610137939453,
+        #                    0.1),
+        #     carla.Rotation(0, 97.6387634277, 0))
+        # first_vehicle_transform = carla.Transform(
+        #     carla.Location(82.58187866210938,
+        #                    20.49610137939453,
+        #                    0.1),
+        #     self._other_actor_transform.rotation)
+        # first_vehicle = CarlaDataProvider.request_new_actor('vehicle.tesla.model3',
+        #                                                     first_vehicle_transform)
+        # first_vehicle.set_simulate_physics(enabled=True)
+        # self.other_actors.append(first_vehicle)
+        first_vehicle_transform = self._reference_waypoint.next(30)[0].transform
+        self._other_actor_transform = first_vehicle_transform
+        # print("============ list: ", ego_vehicle_waypoint.next(30))
+        print("============ first vehicle: ", first_vehicle_transform)
         first_vehicle = CarlaDataProvider.request_new_actor('vehicle.tesla.model3',
                                                             first_vehicle_transform)
         first_vehicle.set_simulate_physics(enabled=True)
         self.other_actors.append(first_vehicle)
+
+
 
     def _create_behavior(self):
         """
