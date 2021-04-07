@@ -307,6 +307,7 @@ class ScenarioRunner(object):
         else:
             # if the world should not be reloaded, wait at least until all ego vehicles are ready
             ego_vehicle_found = False
+            print("============= waiting for ego vehicle")
             if self._args.waitForEgo:
                 while not ego_vehicle_found and not self._shutdown_requested:
                     vehicles = self.client.get_world().get_actors().filter('vehicle.*')
@@ -346,6 +347,7 @@ class ScenarioRunner(object):
             print("The CARLA server uses the wrong map: {}".format(CarlaDataProvider.get_map().name))
             print("This scenario requires to use map: {}".format(town))
             return False
+        print("============= finished world loading")
 
         return True
 
@@ -441,7 +443,7 @@ class ScenarioRunner(object):
         """
         result = False
 
-        if self._args.route:
+        if len(self._args.route)>1:
             routes = self._args.route[0]
             scenario_file = self._args.route[1]
             single_route = None
@@ -449,7 +451,10 @@ class ScenarioRunner(object):
                 single_route = self._args.route[2]
 
         # retrieve routes
-        route_configurations = RouteParser.parse_routes_file(routes, scenario_file, single_route)
+        if len(self._args.route)>1:
+            route_configurations = RouteParser.parse_routes_file(routes, scenario_file, single_route)
+        else:
+            route_configurations = self._args.route
 
         for config in route_configurations:
             for _ in range(self._args.repetitions):

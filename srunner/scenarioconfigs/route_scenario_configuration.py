@@ -48,3 +48,4 @@ class RouteScenarioConfiguration(ScenarioConfiguration):
 
     trajectory = None
     scenario_file = None
+    scenario_config = None

@@ -162,7 +162,8 @@ class RouteScenario(BasicScenario):
                                                              self.sampled_scenarios_definitions,
                                                              scenarios_per_tick=5,
                                                              timeout=self.timeout,
-                                                             debug_mode=debug_mode)
+                                                             debug_mode=debug_mode,
+                                                             weather = config.weather)
 
         super(RouteScenario, self).__init__(name=config.name,
                                             ego_vehicles=[ego_vehicle],
@@ -182,9 +183,14 @@ class RouteScenario(BasicScenario):
         """
 
         # Transform the scenario file into a dictionary
-        world_annotations = RouteParser.parse_annotations_file(config.scenario_file)
+        if config.scenario_file is not None:
+            world_annotations = RouteParser.parse_annotations_file(config.scenario_file)
+        else:
+            world_annotations = config.scenario_config
 
         # prepare route's trajectory (interpolate and add the GPS route)
+        tmp = len(config.trajectory)
+        print(f"length of trajectory {tmp}")
         gps_route, route = interpolate_trajectory(world, config.trajectory)
 
         potential_scenarios_definitions, _ = RouteParser.scan_route_for_scenarios(config.town, route, world_annotations)
@@ -308,7 +314,7 @@ class RouteScenario(BasicScenario):
         return sampled_scenarios
 
     def _build_scenario_instances(self, world, ego_vehicle, scenario_definitions,
-                                  scenarios_per_tick=5, timeout=300, debug_mode=False):
+                                  scenarios_per_tick=5, timeout=300, debug_mode=False, weather = None):
         """
         Based on the parsed route and possible scenarios, build all the scenario classes.
         """
@@ -339,6 +345,8 @@ class RouteScenario(BasicScenario):
             scenario_configuration.other_actors = list_of_actor_conf_instances
             scenario_configuration.trigger_points = [egoactor_trigger_position]
             scenario_configuration.subtype = definition['scenario_type']
+            if weather is not None:
+                scenario_configuration.weather = weather
 
             # NOTE: Need to change vehicle model and role name to match those of actual ego_vehicle 
             scenario_configuration.ego_vehicles = [ActorConfigurationData('vehicle.lincoln.mkz2017',
@@ -510,7 +518,7 @@ class RouteScenario(BasicScenario):
 
         criteria.append(completion_criterion)
         criteria.append(collision_criterion)
-        criteria.append(route_criterion)
+        # criteria.append(route_criterion)
         criteria.append(outsidelane_criterion)
         criteria.append(red_light_criterion)
         criteria.append(stop_criterion)

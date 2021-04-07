@@ -116,6 +116,7 @@ class MaxVelocityTest(Criterion):
             self.test_status = "SUCCESS"
 
         if self._terminate_on_failure and (self.test_status == "FAILURE"):
+            print('>>>>>>> MaxVelocityTest fail')
             new_status = py_trees.common.Status.FAILURE
 
         self.logger.debug("%s.update()[%s->%s]" % (self.__class__.__name__, self.status, new_status))
@@ -183,6 +184,7 @@ class DrivenDistanceTest(Criterion):
             self.test_status = "RUNNING"
 
         if self._terminate_on_failure and (self.test_status == "FAILURE"):
+            print('>>>>>>> DrivenDistanceTest fail')
             new_status = py_trees.common.Status.FAILURE
 
         self.logger.debug("%s.update()[%s->%s]" % (self.__class__.__name__, self.status, new_status))
@@ -267,6 +269,7 @@ class AverageVelocityTest(Criterion):
             self.test_status = "RUNNING"
 
         if self._terminate_on_failure and (self.test_status == "FAILURE"):
+            print('>>>>>>> AverageVelocityTest fail')
             new_status = py_trees.common.Status.FAILURE
 
         self.logger.debug("%s.update()[%s->%s]" % (self.__class__.__name__, self.status, new_status))
@@ -326,6 +329,7 @@ class CollisionTest(Criterion):
         new_status = py_trees.common.Status.RUNNING
 
         if self._terminate_on_failure and (self.test_status == "FAILURE"):
+            print('>>>>>>> CollisionTest fail')
             new_status = py_trees.common.Status.FAILURE
 
         actor_location = CarlaDataProvider.get_location(self.actor)
@@ -483,6 +487,7 @@ class ActorSpeedAboveThresholdTest(Criterion):
                 self._time_last_valid_state = GameTime.get_time()
 
         if self._terminate_on_failure and (self.test_status == "FAILURE"):
+            print('>>>>>>> ActorSpeedAboveThresholdTest fail')
             new_status = py_trees.common.Status.FAILURE
         self.logger.debug("%s.update()[%s->%s]" % (self.__class__.__name__, self.status, new_status))
 
@@ -544,6 +549,7 @@ class KeepLaneTest(Criterion):
             self.test_status = "SUCCESS"
 
         if self._terminate_on_failure and (self.test_status == "FAILURE"):
+            print('>>>>>>> KeepLaneTest fail')
             new_status = py_trees.common.Status.FAILURE
 
         self.logger.debug("%s.update()[%s->%s]" % (self.__class__.__name__, self.status, new_status))
@@ -695,6 +701,7 @@ class OffRoadTest(Criterion):
             self.test_status = "FAILURE"
 
         if self._terminate_on_failure and self.test_status == "FAILURE":
+            print('>>>>>>> OffRoadTest fail')
             new_status = py_trees.common.Status.FAILURE
 
         self.logger.debug("%s.update()[%s->%s]" % (self.__class__.__name__, self.status, new_status))
@@ -821,6 +828,7 @@ class OnSidewalkTest(Criterion):
         new_status = py_trees.common.Status.RUNNING
 
         if self._terminate_on_failure and self.test_status == "FAILURE":
+            print('>>>>>>> OnSidewalkTest fail')
             new_status = py_trees.common.Status.FAILURE
 
         # Some of the vehicle parameters
@@ -1088,6 +1096,7 @@ class OutsideRouteLanesTest(Criterion):
         new_status = py_trees.common.Status.RUNNING
 
         if self._terminate_on_failure and (self.test_status == "FAILURE"):
+            print('>>>>>>> OutsideRouteLanesTest fail')
             new_status = py_trees.common.Status.FAILURE
 
         # Some of the vehicle parameters
@@ -1269,6 +1278,7 @@ class WrongLaneTest(Criterion):
         new_status = py_trees.common.Status.RUNNING
 
         if self._terminate_on_failure and (self.test_status == "FAILURE"):
+            print('>>>>>>> WrongLaneTest fail')
             new_status = py_trees.common.Status.FAILURE
 
         lane_waypoint = self._map.get_waypoint(self._actor.get_location())
@@ -1517,6 +1527,7 @@ class InRouteTest(Criterion):
             return new_status
 
         if self._terminate_on_failure and (self.test_status == "FAILURE"):
+            print('>>>>>> InRouteTest fail1')
             new_status = py_trees.common.Status.FAILURE
 
         elif self.test_status == "RUNNING" or self.test_status == "INIT":
@@ -1577,6 +1588,7 @@ class InRouteTest(Criterion):
 
                 self.test_status = "FAILURE"
                 self.actual_value += 1
+                print('>>>>>> InRouteTest fail2')
                 new_status = py_trees.common.Status.FAILURE
 
         self.logger.debug("%s.update()[%s->%s]" % (self.__class__.__name__, self.status, new_status))
@@ -1639,6 +1651,7 @@ class RouteCompletionTest(Criterion):
             return new_status
 
         if self._terminate_on_failure and (self.test_status == "FAILURE"):
+            print('>>>>>> RouteCompletionTest fail')
             new_status = py_trees.common.Status.FAILURE
 
         elif self.test_status == "RUNNING" or self.test_status == "INIT":
@@ -1820,6 +1833,7 @@ class RunningRedLightTest(Criterion):
                         break
 
         if self._terminate_on_failure and (self.test_status == "FAILURE"):
+            print('>>>>>> RunningRedLightTest fail')
             new_status = py_trees.common.Status.FAILURE
 
         self.logger.debug("%s.update()[%s->%s]" % (self.__class__.__name__, self.status, new_status))
@@ -2041,6 +2055,7 @@ class RunningStopTest(Criterion):
                 self._affected_by_stop = False
 
         if self._terminate_on_failure and (self.test_status == "FAILURE"):
+            print('>>>>>> RunningStopTest fail')
             new_status = py_trees.common.Status.FAILURE
 
         self.logger.debug("%s.update()[%s->%s]" % (self.__class__.__name__, self.status, new_status))
