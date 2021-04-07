@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<routes>
+	<route id="0" town="t2_triple"> 
+		<waypoint x="95.5" y="-107" z="0.0" pitch="0.0" roll="0.0" yaw="-136" />
+		<waypoint x="-102.3" y="89.1" z="1.0" pitch="0.0" roll="0.0" yaw="-135" />
+	</route>
+</routes>
