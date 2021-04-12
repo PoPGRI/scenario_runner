@@ -14,7 +14,7 @@
                             }
                         }
                     ],
-                    "scenario_type": "ScenarioBM"
+                    "scenario_type": "ScenarioGhost"
                 }
             ]
         }

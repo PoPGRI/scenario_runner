@@ -69,6 +69,7 @@ class LeadSlowDown(BasicScenario):
         self._other_actor_transform = None
         # Timeout of scenario in seconds
         self.timeout = timeout
+        self.world = world
 
         super(LeadSlowDown, self).__init__("FollowVehicle",
                                                    ego_vehicles,
@@ -91,18 +92,27 @@ class LeadSlowDown(BasicScenario):
         """
         Custom initialization
         """
+        ego_vehicle_waypoint = self.world.get_map().get_waypoint(self.ego_vehicles[0].get_location(), project_to_road=True, lane_type=carla.LaneType.Driving)
 
-        first_vehicle_waypoint, _ = get_waypoint_in_distance(self._reference_waypoint, self._first_vehicle_location)
-        self._other_actor_transform = carla.Transform(
-            carla.Location(first_vehicle_waypoint.transform.location.x,
-                           first_vehicle_waypoint.transform.location.y,
-                           first_vehicle_waypoint.transform.location.z + 0.1),
-            first_vehicle_waypoint.transform.rotation)
-        first_vehicle_transform = carla.Transform(
-            carla.Location(self._other_actor_transform.location.x,
-                           self._other_actor_transform.location.y,
-                           self._other_actor_transform.location.z - 500),
-            self._other_actor_transform.rotation)
+        # first_vehicle_waypoint, _ = get_waypoint_in_distance(self._reference_waypoint, self._first_vehicle_location)
+        # self._other_actor_transform = carla.Transform(
+        #     carla.Location(first_vehicle_waypoint.transform.location.x,
+        #                    first_vehicle_waypoint.transform.location.y,
+        #                    first_vehicle_waypoint.transform.location.z + 0.1),
+        #     first_vehicle_waypoint.transform.rotation)
+        # first_vehicle_transform = carla.Transform(
+        #     carla.Location(self._other_actor_transform.location.x,
+        #                    self._other_actor_transform.location.y,
+        #                    self._other_actor_transform.location.z - 500),
+        #     self._other_actor_transform.rotation)
+        # first_vehicle = CarlaDataProvider.request_new_actor('vehicle.tesla.model3',
+        #                                                     first_vehicle_transform)
+        # first_vehicle.set_simulate_physics(enabled=True)
+        # self.other_actors.append(first_vehicle)
+        first_vehicle_transform = self._reference_waypoint.next(30)[0].transform
+        self._other_actor_transform = first_vehicle_transform
+        # print("============ list: ", ego_vehicle_waypoint.next(30))
+        print("============ first vehicle LeadSlow: ", first_vehicle_transform)
         first_vehicle = CarlaDataProvider.request_new_actor('vehicle.tesla.model3',
                                                             first_vehicle_transform)
         first_vehicle.set_simulate_physics(enabled=True)

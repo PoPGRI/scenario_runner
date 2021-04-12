@@ -39,7 +39,11 @@ from srunner.scenarios.object_crash_intersection import VehicleTurningRoute
 from srunner.scenarios.other_leading_vehicle import OtherLeadingVehicle
 from srunner.scenarios.maneuver_opposite_direction import ManeuverOppositeDirection
 from srunner.scenarios.junction_crossing_route import SignalJunctionCrossingRoute, NoSignalJunctionCrossingRoute
+
 from srunner.scenarios.bad_merge import BadMerge
+from srunner.scenarios.ghost_cutin import GhostCutIn
+from srunner.scenarios.lead_cutin import LeadCutIn
+from srunner.scenarios.lead_slowdown import LeadSlowdown
 
 from srunner.scenariomanager.scenarioatomics.atomic_criteria import (CollisionTest,
                                                                      InRouteTest,
@@ -62,7 +66,10 @@ NUMBER_CLASS_TRANSLATION = {
     "Scenario8": SignalJunctionCrossingRoute,
     "Scenario9": SignalJunctionCrossingRoute,
     "Scenario10": NoSignalJunctionCrossingRoute,
-    "ScenarioBM": BadMerge
+    "ScenarioBM": BadMerge,
+    "ScenarioGhost": GhostCutIn,
+    "ScenarioLeadCut": LeadCutIn,
+    "ScenarioLeadSlow": LeadSlowdown
 }
 
 
