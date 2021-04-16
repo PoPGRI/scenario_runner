@@ -9,7 +9,6 @@
 
 """
 Ghost Cut In:
-
 The scenario realizes a common driving behavior, in which the
 user-controlled ego vehicle follows a lane at constant speed and
 an npc suddenly cut into the lane from the left while slowing down.
@@ -46,7 +45,6 @@ class GhostCutIn(BasicScenario):
     """
     This class holds everything required for a simple "Follow a leading vehicle"
     scenario involving two vehicles.  (Traffic Scenario 2)
-
     This is a single ego vehicle scenario
     """
 
@@ -56,7 +54,6 @@ class GhostCutIn(BasicScenario):
                  timeout=60):
         """
         Setup all relevant parameters and create scenario
-
         If randomize is True, the scenario parameters are randomized
         """
 
@@ -69,8 +66,9 @@ class GhostCutIn(BasicScenario):
         self._other_actor_transform = None
         # Timeout of scenario in seconds
         self.timeout = timeout
+        self.world = world
 
-        super(GhostCutIn, self).__init__("FollowVehicle",
+        super(GhostCutIn, self).__init__("GhostCutIn",
                                                    ego_vehicles,
                                                    config,
                                                    world,
@@ -92,21 +90,33 @@ class GhostCutIn(BasicScenario):
         Custom initialization
         """
 
-        first_vehicle_waypoint, _ = get_waypoint_in_distance(self._reference_waypoint, self._first_vehicle_location)
-        self._other_actor_transform = carla.Transform(
-            carla.Location(first_vehicle_waypoint.transform.location.x + 3.2,
-                           first_vehicle_waypoint.transform.location.y - 5,
-                           first_vehicle_waypoint.transform.location.z + 0.1),
-            first_vehicle_waypoint.transform.rotation)
-        first_vehicle_transform = carla.Transform(
-            carla.Location(self._other_actor_transform.location.x + 3.2,
-                           self._other_actor_transform.location.y - 5,
-                           self._other_actor_transform.location.z - 500),
-            self._other_actor_transform.rotation)
+        ego_vehicle_waypoint = self.world.get_map().get_waypoint(self.ego_vehicles[0].get_location(), project_to_road=True, lane_type=carla.LaneType.Driving)
+        
+        # first_vehicle_waypoint, _ = get_waypoint_in_distance(self._reference_waypoint, self._first_vehicle_location)
+        # self._other_actor_transform = carla.Transform(
+        #     carla.Location(82.58187866210938,
+        #                    20.49610137939453,
+        #                    0.1),
+        #     first_vehicle_waypoint.transform.rotation)
+        # first_vehicle_transform = carla.Transform(
+        #     carla.Location(82.58187866210938,
+        #                    20.49610137939453,
+        #                    0.1),
+        #     self._other_actor_transform.rotation)
+        # first_vehicle = CarlaDataProvider.request_new_actor('vehicle.tesla.model3',
+        #                                                    first_vehicle_transform)
+        # first_vehicle.set_simulate_physics(enabled=True)
+        # self.other_actors.append(first_vehicle)
+        first_vehicle_transform = self._reference_waypoint.next(15)[0].transform
+        self._other_actor_transform = first_vehicle_transform
+        # print("============ list: ", ego_vehicle_waypoint.next(30))
+        print("============ first vehicle ghost: ", first_vehicle_transform)
         first_vehicle = CarlaDataProvider.request_new_actor('vehicle.tesla.model3',
                                                             first_vehicle_transform)
         first_vehicle.set_simulate_physics(enabled=True)
         self.other_actors.append(first_vehicle)
+
+
 
     def _create_behavior(self):
         """
