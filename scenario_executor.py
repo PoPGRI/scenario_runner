@@ -58,13 +58,22 @@ if __name__ == "__main__":
                             "yaw": "133.83380126953125",
                             "z": "1.22"
                         }
+                    },
+                    {
+                        "transform": {
+                            "pitch": "0",
+                            "x": "75.30655670166016",
+                            "y": "59.17829895019531",
+                            "yaw": "127.91788482666016",
+                            "z": "1.22"
+                        }
                     }
                 ],
                 "scenario_type": "ScenarioBM"
             }
         ]
     }
-    
+
     route_config_list = []
     route_config = RouteScenarioConfiguration()
     route_config.town = 't1_triple'
@@ -138,4 +147,4 @@ if __name__ == "__main__":
 
     args = ScenarioArguments(route_config_list, scenario_config)
     scenario_execution = ScenarioExecutor(args)
-    scenario_execution.execute()
+    # scenario_execution.execute()
