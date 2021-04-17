@@ -165,7 +165,7 @@ class RouteParser(object):
             dpos = math.sqrt(dx * dx + dy * dy + dz * dz)
 
             dyaw = (float(waypoint1['yaw']) - wtransform.rotation.yaw) % 360
-            print(">>>>>>>>>>", dpos, dyaw)
+            print(">>>>>>>>>>", dpos, dyaw, float(waypoint1['yaw']), wtransform.rotation.yaw)
             return dpos < TRIGGER_THRESHOLD \
                 and (dyaw < TRIGGER_ANGLE_THRESHOLD or dyaw > (360 - TRIGGER_ANGLE_THRESHOLD))
 
