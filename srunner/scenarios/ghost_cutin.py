@@ -59,7 +59,7 @@ class GhostCutIn(BasicScenario):
 
         self._map = CarlaDataProvider.get_map()
         self._first_vehicle_location = 0
-        self._first_vehicle_speed = 200
+        self._first_vehicle_speed = 40
         self._reference_waypoint = self._map.get_waypoint(config.trigger_points[0].location)
         self._other_actor_max_brake = 1.0
         self._other_actor_stop_in_front_intersection = 20
@@ -107,7 +107,17 @@ class GhostCutIn(BasicScenario):
         #                                                    first_vehicle_transform)
         # first_vehicle.set_simulate_physics(enabled=True)
         # self.other_actors.append(first_vehicle)
-        first_vehicle_transform = self._reference_waypoint.next(15)[0].transform
+        transform = self._reference_waypoint.next(45)[0].transform
+        left_transform = carla.Transform(
+            transform.location - 5*transform.get_right_vector(),
+            transform.rotation
+        )
+        right_transform = carla.Transform(
+            transform.location + 5*transform.get_right_vector(),
+            transform.rotation
+        )
+
+        first_vehicle_transform = transform
         self._other_actor_transform = first_vehicle_transform
         # print("============ list: ", ego_vehicle_waypoint.next(30))
         print("============ first vehicle ghost: ", first_vehicle_transform)

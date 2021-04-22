@@ -2849,7 +2849,7 @@ class ScenarioTriggerer(AtomicBehavior):
 
             # Already done, if needed
             condition3 = bool(self._repeat or black_var_name not in self._triggered_scenarios)
-            print(">>>>>>", scen_distance, condition1, condition2, condition3)
+            # print(">>>>>>", scen_distance, condition1, condition2, condition3)
             if condition1 and condition2 and condition3:
                 _ = blackboard.set(black_var_name, True)
                 self._triggered_scenarios.append(black_var_name)
