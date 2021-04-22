@@ -147,4 +147,4 @@ if __name__ == "__main__":
 
     args = ScenarioArguments(route_config_list, scenario_config)
     scenario_execution = ScenarioExecutor(args)
-    # scenario_execution.execute()
+    scenario_execution.execute()
