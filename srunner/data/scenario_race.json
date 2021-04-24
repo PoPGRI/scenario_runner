@@ -14,7 +14,7 @@
                             }
                         }
                     ],
-                    "scenario_type": "ScenarioGhost"
+                    "scenario_type": "ScenarioDynamicObject"
                 }
             ]
         }

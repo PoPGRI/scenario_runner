@@ -140,6 +140,7 @@ class DynamicObjectCrossing(BasicScenario):
 
     This is a single ego vehicle scenario
     """
+    timeout = 120
 
     def __init__(self, world, ego_vehicles, config, randomize=False,
                  debug_mode=False, criteria_enable=True, adversary_type=False, timeout=60):
@@ -168,6 +169,8 @@ class DynamicObjectCrossing(BasicScenario):
         self._spawn_attempted = 0
 
         self._ego_route = CarlaDataProvider.get_ego_vehicle_route()
+        
+        self.world = world
 
         super(DynamicObjectCrossing, self).__init__("DynamicObjectCrossing",
                                                     ego_vehicles,
@@ -248,6 +251,9 @@ class DynamicObjectCrossing(BasicScenario):
         _start_distance = 12
         # We start by getting and waypoint in the closest sidewalk.
         waypoint = self._reference_waypoint
+        
+        #ego_vehicle_waypoint = self.world.get_map().get_waypoint(self.ego_vehicles[0].get_location(), project_to_road=True, lane_type=carla.LaneType.Driving)
+        
         while True:
             wp_next = waypoint.get_right_lane()
             self._num_lane_changes += 1
@@ -282,16 +288,36 @@ class DynamicObjectCrossing(BasicScenario):
 
         # Now that we found a possible position we just put the vehicle to the underground
         disp_transform = carla.Transform(
-            carla.Location(self.transform.location.x,
-                           self.transform.location.y,
-                           self.transform.location.z - 500),
+            carla.Location(82.58187866210938,
+                           20.49610137939453,
+                           0.1),
             self.transform.rotation)
 
+        disp_transform = self._reference_waypoint.next(30)[0].transform
+        #self._other_actor_transform = disp_transform
+        # print("============ list: ", ego_vehicle_waypoint.next(30))
+        print("============ disp Dynamic: ", disp_transform)
+        #first_vehicle = CarlaDataProvider.request_new_actor('vehicle.tesla.model3',
+                                                            #disp_transform)
+        #disp.set_simulate_physics(enabled=True)
+        #self.other_actors.append(disp)
+
+
+
         prop_disp_transform = carla.Transform(
-            carla.Location(self.transform2.location.x,
-                           self.transform2.location.y,
-                           self.transform2.location.z - 500),
+            carla.Location(82.58187866210938,
+                           20.49610137939453,
+                           0.1),
             self.transform2.rotation)
+        
+        prop_disp_transform = self._reference_waypoint.next(30)[0].transform
+        #self._other_actor_transform = disp_transform
+        # print("============ list: ", ego_vehicle_waypoint.next(30))
+        print("============ prop disp Dynamic: ", prop_disp_transform)
+        #first_vehicle = CarlaDataProvider.request_new_actor('vehicle.tesla.model3',
+                                                            #prop_disp_transform)
+        #prop_disp.set_simulate_physics(enabled=True)
+        #self.other_actors.append(prop_disp)
 
         first_vehicle.set_transform(disp_transform)
         blocker.set_transform(prop_disp_transform)

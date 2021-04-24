@@ -43,7 +43,9 @@ from srunner.scenarios.junction_crossing_route import SignalJunctionCrossingRout
 from srunner.scenarios.bad_merge import BadMerge
 from srunner.scenarios.ghost_cutin import GhostCutIn
 from srunner.scenarios.lead_cutin import LeadCutIn
-from srunner.scenarios.lead_slowdown import LeadSlowdown
+from srunner.scenarios.lead_slowdown import LeadSlowDown
+from srunner.scenarios.object_crash_vehicle import StationaryObjectCrossing
+from srunner.scenarios.object_crash_vehicle import DynamicObjectCrossing
 
 from srunner.scenariomanager.scenarioatomics.atomic_criteria import (CollisionTest,
                                                                      InRouteTest,
@@ -69,7 +71,10 @@ NUMBER_CLASS_TRANSLATION = {
     "ScenarioBM": BadMerge,
     "ScenarioGhost": GhostCutIn,
     "ScenarioLeadCut": LeadCutIn,
-    "ScenarioLeadSlow": LeadSlowdown
+    "ScenarioLeadSlow": LeadSlowDown,
+    "ScenarioStationaryObject": StationaryObjectCrossing,
+    "ScenarioDynamicObject": DynamicObjectCrossing
+    
 }
 
 
