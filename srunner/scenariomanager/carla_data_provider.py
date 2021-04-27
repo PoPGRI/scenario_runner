@@ -779,32 +779,13 @@ class CarlaDataProvider(object):  # pylint: disable=too-many-public-methods
         """
         Cleanup and remove all entries from all dictionaries
         """
-        # DestroyActor = carla.command.DestroyActor       # pylint: disable=invalid-name
-        # batch = []
-
-        # for actor_id in CarlaDataProvider._carla_actor_pool.copy():
-        #     actor = CarlaDataProvider._carla_actor_pool[actor_id]
-        #     if actor.attributes['role_name'] != "ego_vehicle" and actor.is_alive:
-        #         batch.append(DestroyActor(actor))
-
-        # if CarlaDataProvider._client:
-        #     try:
-        #         CarlaDataProvider._client.apply_batch_sync(batch)
-        #     except RuntimeError as e:
-        #         if "time-out" in str(e):
-        #             pass
-        #         else:
-        #             raise e
-
-        StopActor = carla.command.ApplyVehicleControl       # pylint: disable=invalid-name
+        DestroyActor = carla.command.DestroyActor       # pylint: disable=invalid-name
         batch = []
 
         for actor_id in CarlaDataProvider._carla_actor_pool.copy():
             actor = CarlaDataProvider._carla_actor_pool[actor_id]
-            if actor.attributes['role_name'] != "ego_vehicle" and actor.is_alive and 'vehicle' in actor.type_id:
-                actor.set_autopilot(enabled = False)
-                print(f">>>>>> actor {actor.id} {actor.attributes['role_name']} stopped")
-                batch.append(StopActor(actor, carla.VehicleControl(throttle = 0,steer = 0,brake = 1)))
+            if actor.attributes['role_name'] != "ego_vehicle" and actor.is_alive:
+                batch.append(DestroyActor(actor))
 
         if CarlaDataProvider._client:
             try:
@@ -814,6 +795,24 @@ class CarlaDataProvider(object):  # pylint: disable=too-many-public-methods
                     pass
                 else:
                     raise e
+
+        # StopActor = carla.command.ApplyVehicleControl       # pylint: disable=invalid-name
+        # batch = []
+
+        # for actor_id in CarlaDataProvider._carla_actor_pool.copy():
+        #     actor = CarlaDataProvider._carla_actor_pool[actor_id]
+        #     if actor.attributes['role_name'] != "ego_vehicle" and actor.is_alive:
+        #         print(f">>>>>> actor {actor.id} {actor.attributes['role_name']} stopped")
+        #         batch.append(StopActor(actor, carla.VehicleControl(throttle = 0,steer = 0,brake = 1)))
+
+        # if CarlaDataProvider._client:
+        #     try:
+        #         CarlaDataProvider._client.apply_batch_sync(batch)
+        #     except RuntimeError as e:
+        #         if "time-out" in str(e):
+        #             pass
+        #         else:
+        #             raise e
 
         CarlaDataProvider._actor_velocity_map.clear()
         CarlaDataProvider._actor_location_map.clear()
@@ -828,3 +827,4 @@ class CarlaDataProvider(object):  # pylint: disable=too-many-public-methods
         CarlaDataProvider._spawn_points = None
         CarlaDataProvider._spawn_index = 0
         CarlaDataProvider._rng = random.RandomState(CarlaDataProvider._random_seed)
+
