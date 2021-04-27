@@ -80,7 +80,7 @@ class StationaryObjectCrossing(BasicScenario):
         location += offset_location
         location.z += offset['z']
         self.transform = carla.Transform(location, carla.Rotation(yaw=orientation_yaw))
-        static = CarlaDataProvider.request_new_actor('static.prop.container', self.transform)
+        static = CarlaDataProvider.request_new_actor('vehicle.*', self.transform)
         static.set_simulate_physics(True)
         self.other_actors.append(static)
 
@@ -93,8 +93,8 @@ class StationaryObjectCrossing(BasicScenario):
         lane_width = lane_width + (1.25 * lane_width)
 
         # leaf nodes
-        actor_stand = TimeOut(15)
-        actor_removed = ActorDestroy(self.other_actors[0])
+        # actor_stand = TimeOut(15)
+        # actor_removed = ActorDestroy(self.other_actors[0])
         end_condition = DriveDistance(self.ego_vehicles[0], self._ego_vehicle_distance_driven)
 
         # non leaf nodes
@@ -105,8 +105,8 @@ class StationaryObjectCrossing(BasicScenario):
         # building tree
         root.add_child(scenario_sequence)
         scenario_sequence.add_child(ActorTransformSetter(self.other_actors[0], self.transform))
-        scenario_sequence.add_child(actor_stand)
-        scenario_sequence.add_child(actor_removed)
+        # scenario_sequence.add_child(actor_stand)
+        # scenario_sequence.add_child(actor_removed)
         scenario_sequence.add_child(end_condition)
 
         return root
@@ -152,7 +152,7 @@ class DynamicObjectCrossing(BasicScenario):
         # ego vehicle parameters
         self._ego_vehicle_distance_driven = 40
         # other vehicle parameters
-        self._other_actor_target_velocity = 5
+        self._other_actor_target_velocity = 2.5
         self._other_actor_max_brake = 1.0
         self._time_to_reach = 10
         self._adversary_type = adversary_type  # flag to select either pedestrian (False) or cyclist (True)
@@ -204,7 +204,7 @@ class DynamicObjectCrossing(BasicScenario):
 
         if self._adversary_type is False:
             self._walker_yaw = orientation_yaw
-            self._other_actor_target_velocity = 3 + (0.4 * self._num_lane_changes)
+            # self._other_actor_target_velocity = 3 + (0.4 * self._num_lane_changes)
             walker = CarlaDataProvider.request_new_actor('walker.*', transform)
             adversary = walker
         else:
@@ -245,7 +245,7 @@ class DynamicObjectCrossing(BasicScenario):
         Custom initialization
         """
         # cyclist transform
-        _start_distance = 12
+        _start_distance = 45
         # We start by getting and waypoint in the closest sidewalk.
         waypoint = self._reference_waypoint
         while True:
@@ -313,7 +313,7 @@ class DynamicObjectCrossing(BasicScenario):
         lane_width = self._reference_waypoint.lane_width
         lane_width = lane_width + (1.25 * lane_width * self._num_lane_changes)
 
-        dist_to_trigger = 12 + self._num_lane_changes
+        dist_to_trigger = 45 + self._num_lane_changes
         # leaf nodes
         if self._ego_route is not None:
             start_condition = InTriggerDistanceToLocationAlongRoute(self.ego_vehicles[0],
