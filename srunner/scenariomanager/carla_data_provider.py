@@ -801,7 +801,7 @@ class CarlaDataProvider(object):  # pylint: disable=too-many-public-methods
 
         for actor_id in CarlaDataProvider._carla_actor_pool.copy():
             actor = CarlaDataProvider._carla_actor_pool[actor_id]
-            if actor.attributes['role_name'] != "ego_vehicle" and actor.is_alive:
+            if actor.attributes['role_name'] != "ego_vehicle" and actor.is_alive and 'vehicle' in actor.type_id:
                 actor.set_autopilot(enabled = False)
                 print(f">>>>>> actor {actor.id} {actor.attributes['role_name']} stopped")
                 batch.append(StopActor(actor, carla.VehicleControl(throttle = 0,steer = 0,brake = 1)))
