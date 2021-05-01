@@ -80,7 +80,7 @@ class StationaryObjectCrossing(BasicScenario):
         location += offset_location
         location.z += offset['z']
         self.transform = carla.Transform(location, carla.Rotation(yaw=orientation_yaw))
-        static = CarlaDataProvider.request_new_actor('vehicle.*', self.transform)
+        static = CarlaDataProvider.request_new_actor('vehicle.bmw.isetta', self.transform)
         static.set_simulate_physics(True)
         self.other_actors.append(static)
 
@@ -269,7 +269,7 @@ class DynamicObjectCrossing(BasicScenario):
                 self.transform, orientation_yaw = self._calculate_base_transform(_start_distance, waypoint)
                 first_vehicle = self._spawn_adversary(self.transform, orientation_yaw)
 
-                blocker = self._spawn_blocker(self.transform, orientation_yaw)
+                # blocker = self._spawn_blocker(self.transform, orientation_yaw)
 
                 break
             except RuntimeError as r:
@@ -287,18 +287,18 @@ class DynamicObjectCrossing(BasicScenario):
                            self.transform.location.z - 500),
             self.transform.rotation)
 
-        prop_disp_transform = carla.Transform(
-            carla.Location(self.transform2.location.x,
-                           self.transform2.location.y,
-                           self.transform2.location.z - 500),
-            self.transform2.rotation)
+        # prop_disp_transform = carla.Transform(
+        #     carla.Location(self.transform2.location.x,
+        #                    self.transform2.location.y,
+        #                    self.transform2.location.z - 500),
+        #     self.transform2.rotation)
 
         first_vehicle.set_transform(disp_transform)
-        blocker.set_transform(prop_disp_transform)
+        # blocker.set_transform(prop_disp_transform)
         first_vehicle.set_simulate_physics(enabled=False)
-        blocker.set_simulate_physics(enabled=False)
+        # blocker.set_simulate_physics(enabled=False)
         self.other_actors.append(first_vehicle)
-        self.other_actors.append(blocker)
+        # self.other_actors.append(blocker)
 
     def _create_behavior(self):
         """
@@ -346,8 +346,8 @@ class DynamicObjectCrossing(BasicScenario):
                                          name="ego vehicle passed prop")
         actor_remove = ActorDestroy(self.other_actors[0],
                                     name="Destroying walker")
-        static_remove = ActorDestroy(self.other_actors[1],
-                                     name="Destroying Prop")
+        # static_remove = ActorDestroy(self.other_actors[1],
+        #                              name="Destroying Prop")
         end_condition = DriveDistance(self.ego_vehicles[0],
                                       self._ego_vehicle_distance_driven,
                                       name="End condition ego drive distance")
@@ -365,8 +365,8 @@ class DynamicObjectCrossing(BasicScenario):
         root.add_child(scenario_sequence)
         scenario_sequence.add_child(ActorTransformSetter(self.other_actors[0], self.transform,
                                                          name='TransformSetterTS3walker'))
-        scenario_sequence.add_child(ActorTransformSetter(self.other_actors[1], self.transform2,
-                                                         name='TransformSetterTS3coca', physics=False))
+        # scenario_sequence.add_child(ActorTransformSetter(self.other_actors[1], self.transform2,
+        #                                                  name='TransformSetterTS3coca', physics=False))
         scenario_sequence.add_child(HandBrakeVehicle(self.other_actors[0], True))
         scenario_sequence.add_child(start_condition)
         scenario_sequence.add_child(HandBrakeVehicle(self.other_actors[0], False))
@@ -374,7 +374,7 @@ class DynamicObjectCrossing(BasicScenario):
         scenario_sequence.add_child(keep_velocity_other)
         scenario_sequence.add_child(actor_stop_crossed_lane)
         scenario_sequence.add_child(actor_remove)
-        scenario_sequence.add_child(static_remove)
+        # scenario_sequence.add_child(static_remove)
         scenario_sequence.add_child(end_condition)
 
         keep_velocity.add_child(actor_velocity)
