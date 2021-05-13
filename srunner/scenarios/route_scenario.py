@@ -507,7 +507,7 @@ class RouteScenario(BasicScenario):
 
         route = convert_transform_to_location(self.route)
 
-        collision_criterion = CollisionTest(self.ego_vehicles[0], terminate_on_failure=False)
+        collision_criterion = CollisionTest(self.ego_vehicles[0], terminate_on_failure=True)
 
         route_criterion = InRouteTest(self.ego_vehicles[0],
                                       route=route,

@@ -327,8 +327,7 @@ class CollisionTest(Criterion):
         Check collision count
         """
         new_status = py_trees.common.Status.RUNNING
-
-        if self._terminate_on_failure and (self.test_status == "FAILURE"):
+        if self._terminate_on_failure and (self.test_status == "FAILURE") and self.actual_value > 2:
             print('>>>>>>> CollisionTest fail')
             new_status = py_trees.common.Status.FAILURE
 

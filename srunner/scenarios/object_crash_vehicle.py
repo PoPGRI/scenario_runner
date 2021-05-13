@@ -118,7 +118,7 @@ class StationaryObjectCrossing(BasicScenario):
         """
         criteria = []
 
-        collision_criterion = CollisionTest(self.ego_vehicles[0])
+        collision_criterion = CollisionTest(self.ego_vehicles[0], terminate_on_failure=True)
         criteria.append(collision_criterion)
 
         return criteria
@@ -392,7 +392,7 @@ class DynamicObjectCrossing(BasicScenario):
         """
         criteria = []
 
-        collision_criterion = CollisionTest(self.ego_vehicles[0])
+        collision_criterion = CollisionTest(self.ego_vehicles[0], terminate_on_failure=True)
         criteria.append(collision_criterion)
 
         return criteria
