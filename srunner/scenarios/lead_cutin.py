@@ -59,7 +59,7 @@ class LeadCutIn(BasicScenario):
 
         self._map = CarlaDataProvider.get_map()
         self._first_vehicle_location = 22
-        self._first_vehicle_speed = 25
+        self._first_vehicle_speed = 20
         self._reference_waypoint = self._map.get_waypoint(config.trigger_points[0].location)
         self._other_actor_max_brake = 1.0
         self._other_actor_stop_in_front_intersection = 20
