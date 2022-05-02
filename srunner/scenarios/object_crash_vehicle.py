@@ -11,6 +11,7 @@ moving along the road and encountering a cyclist ahead.
 from __future__ import print_function
 
 import math
+from tkinter.tix import Tree
 import py_trees
 import carla
 
@@ -152,10 +153,13 @@ class DynamicObjectCrossing(BasicScenario):
         # ego vehicle parameters
         self._ego_vehicle_distance_driven = 40
         # other vehicle parameters
-        self._other_actor_target_velocity = 2.5
+        # NOTE: changed
+        self._other_actor_target_velocity = 10
         self._other_actor_max_brake = 1.0
-        self._time_to_reach = 10
+        self._time_to_reach = 15
         self._adversary_type = adversary_type  # flag to select either pedestrian (False) or cyclist (True)
+        # NOTE: changed
+        # self._adversary_type = True
         self._walker_yaw = 0
         self._num_lane_changes = 1
         self.transform = None

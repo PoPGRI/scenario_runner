@@ -62,11 +62,12 @@ class LeadSlowDown(BasicScenario):
 
         self._map = CarlaDataProvider.get_map()
         self._first_vehicle_location = 40
-        self._first_vehicle_speed = 25
+        # NOTE: changed
+        self._first_vehicle_speed = 35
         self._reference_waypoint = self._map.get_waypoint(config.trigger_points[0].location)
         self._other_actor_max_brake = 1.0
         self._other_actor_stop_in_front_intersection = 20
-        self._other_actor_transform = None
+        self._other_actor_transform = []
         # Timeout of scenario in seconds
         self.timeout = timeout
         self.world = world
@@ -92,7 +93,7 @@ class LeadSlowDown(BasicScenario):
         """
         Custom initialization
         """
-        ego_vehicle_waypoint = self.world.get_map().get_waypoint(self.ego_vehicles[0].get_location(), project_to_road=True, lane_type=carla.LaneType.Driving)
+        # ego_vehicle_waypoint = self.world.get_map().get_waypoint(self.ego_vehicles[0].get_location(), project_to_road=True, lane_type=carla.LaneType.Driving)
 
         # first_vehicle_waypoint, _ = get_waypoint_in_distance(self._reference_waypoint, self._first_vehicle_location)
         # self._other_actor_transform = carla.Transform(
@@ -111,21 +112,29 @@ class LeadSlowDown(BasicScenario):
         # self.other_actors.append(first_vehicle)
         transform = self._reference_waypoint.next(45)[0].transform
         left_transform = carla.Transform(
-            transform.location - 5*transform.get_right_vector(),
+            transform.location - 2.5*transform.get_right_vector(),
             transform.rotation
         )
         right_transform = carla.Transform(
-            transform.location + 5*transform.get_right_vector(),
+            transform.location + 2.5*transform.get_right_vector(),
             transform.rotation
         )
-        first_vehicle_transform = left_transform
-        self._other_actor_transform = first_vehicle_transform
+        first_vehicle_transform = right_transform
+        self._other_actor_transform.append(first_vehicle_transform)
         # print("============ list: ", ego_vehicle_waypoint.next(30))
-        print("============ first vehicle LeadSlow: ", first_vehicle_transform)
+        # print("============ first vehicle LeadSlow: ", first_vehicle_transform)
         first_vehicle = CarlaDataProvider.request_new_actor('vehicle.tesla.model3',
                                                             first_vehicle_transform)
         first_vehicle.set_simulate_physics(enabled=True)
         self.other_actors.append(first_vehicle)
+
+        # NOTE: changed
+        second_vehicle_transform = left_transform
+        second_vehicle = CarlaDataProvider.request_new_actor('vehicle.carlamotors.carlacola',
+                                                            second_vehicle_transform)
+        second_vehicle.set_simulate_physics(enabled=True)
+        self.other_actors.append(second_vehicle)
+        self._other_actor_transform.append(second_vehicle_transform)
 
     def _create_behavior(self):
         """
@@ -139,8 +148,9 @@ class LeadSlowDown(BasicScenario):
 
         # to avoid the other actor blocking traffic, it was spawed elsewhere
         # reset its pose to the required one
-        start_transform = ActorTransformSetter(self.other_actors[0], self._other_actor_transform)
-
+        start_transform = ActorTransformSetter(self.other_actors[0], self._other_actor_transform[0])
+        # NOTE: changed
+        start_transform_2 = ActorTransformSetter(self.other_actors[1], self._other_actor_transform[1])
         # let the other actor drive then slow down to cause a potential accident
         driving_to_next_intersection = py_trees.composites.Parallel("Driving forward",
             policy=py_trees.common.ParallelPolicy.SUCCESS_ON_ALL)
@@ -148,7 +158,7 @@ class LeadSlowDown(BasicScenario):
         driving_to_next_intersection_first = py_trees.composites.Sequence("Start Driving")
         driving_to_next_intersection_first.add_child(InTriggerDistanceToVehicle(self.other_actors[0],
                                                                           self.ego_vehicles[0],
-                                                                          distance=70,
+                                                                          distance=60,
                                                                           name="Distance"))
         driving_to_next_intersection_first.add_child(WaypointFollower(self.other_actors[0], self._first_vehicle_speed))
         
@@ -161,10 +171,30 @@ class LeadSlowDown(BasicScenario):
         driving_to_next_intersection_second.add_child(StandStill(self.other_actors[0], name="check stop", duration=2))
         driving_to_next_intersection_second.add_child(ChangeAutoPilot(self.other_actors[0], True))
 
+        # NOTE: changed
+        driving_to_next_intersection_first_2 = py_trees.composites.Sequence("Start Driving")
+        driving_to_next_intersection_first_2.add_child(InTriggerDistanceToVehicle(self.other_actors[1],
+                                                                          self.ego_vehicles[0],
+                                                                          distance=60,
+                                                                          name="Distance"))
+        driving_to_next_intersection_first_2.add_child(WaypointFollower(self.other_actors[1], self._first_vehicle_speed))
+        
+        driving_to_next_intersection_second_2 = py_trees.composites.Sequence("Start Braking")
+        driving_to_next_intersection_second_2.add_child(InTriggerDistanceToVehicle(self.other_actors[1],
+                                                                          self.ego_vehicles[0],
+                                                                          distance=30,
+                                                                          name="Distance"))
+        driving_to_next_intersection_second_2.add_child(StopVehicle(self.other_actors[1], self._other_actor_max_brake))
+        driving_to_next_intersection_second_2.add_child(StandStill(self.other_actors[1], name="check stop", duration=2))
+        driving_to_next_intersection_second_2.add_child(ChangeAutoPilot(self.other_actors[1], True))
+
+
 
         # construct scenario
         driving_to_next_intersection.add_child(driving_to_next_intersection_first)
         driving_to_next_intersection.add_child(driving_to_next_intersection_second)
+        driving_to_next_intersection.add_child(driving_to_next_intersection_first_2)
+        driving_to_next_intersection.add_child(driving_to_next_intersection_second_2)
 
         # end condition
         endcondition = py_trees.composites.Parallel("Waiting for end position",
@@ -175,9 +205,11 @@ class LeadSlowDown(BasicScenario):
         # Build behavior tree
         sequence = py_trees.composites.Sequence("Sequence Behavior")
         sequence.add_child(start_transform)
+        sequence.add_child(start_transform_2)
         sequence.add_child(driving_to_next_intersection)
         sequence.add_child(endcondition)
         sequence.add_child(ActorDestroy(self.other_actors[0]))
+        sequence.add_child(ActorDestroy(self.other_actors[1]))
 
         return sequence
 

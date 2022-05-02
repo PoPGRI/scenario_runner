@@ -59,7 +59,8 @@ class BadMerge(BasicScenario):
 
         self._map = CarlaDataProvider.get_map()
         self._first_vehicle_location = 0
-        self._first_vehicle_speed = 25
+        # NOTE: changed
+        self._first_vehicle_speed = 50
         self._reference_waypoint = self._map.get_waypoint(config.trigger_points[0].location)
         self._other_actor_max_brake = 1.0
         self._other_actor_stop_in_front_intersection = 20
@@ -76,7 +77,8 @@ class BadMerge(BasicScenario):
                                        criteria_enable=criteria_enable)
 
         if randomize:
-            self._ego_other_distance_start = random.randint(4, 8)
+            # NOTE: changed
+            self._ego_other_distance_start = random.randint(6, 10)
 
             # Example code how to randomize start location
             # distance = random.randint(20, 80)
@@ -91,12 +93,12 @@ class BadMerge(BasicScenario):
         """
 
         # ego_vehicle_waypoint = self.world.get_map().get_waypoint(self.ego_vehicles[0].get_location(), project_to_road=True, lane_type=carla.LaneType.Driving)
-
-        first_vehicle_transform = self._reference_waypoint.next(45)[0].transform
+        # NOTE: changed
+        first_vehicle_transform = self._reference_waypoint.next(40)[0].transform
         # self._other_actor_transform = first_vehicle_transform
         # print("============ list: ", ego_vehicle_waypoint.next(30))
         print("============ first vehicle BM: ", first_vehicle_transform)
-        first_vehicle = CarlaDataProvider.request_new_actor('vehicle.audi.a2',
+        first_vehicle = CarlaDataProvider.request_new_actor('vehicle.audi.tt',
                                                             first_vehicle_transform)
         first_vehicle.set_simulate_physics(enabled=True)
         self.other_actors.append(first_vehicle)
@@ -105,9 +107,18 @@ class BadMerge(BasicScenario):
             first_vehicle_transform.location + 5*first_vehicle_transform.get_right_vector(),
             first_vehicle_transform.rotation
         )
-        second_vehicle = CarlaDataProvider.request_new_actor('vehicle.audi.a2', second_vehicle_transform)
+        second_vehicle = CarlaDataProvider.request_new_actor('vehicle.audi.etron', second_vehicle_transform)
         second_vehicle.set_simulate_physics(enabled=True)
         self.other_actors.append(second_vehicle)
+
+        # NOTE: changed type + added one more vehicle
+        third_vehicle_transform = carla.Transform(
+            first_vehicle_transform.location + 7.5*first_vehicle_transform.get_forward_vector() - 5*first_vehicle_transform.get_right_vector(),
+            first_vehicle_transform.rotation
+        )
+        third_vehicle = CarlaDataProvider.request_new_actor('vehicle.audi.a2', third_vehicle_transform)
+        third_vehicle.set_simulate_physics(enabled=True)
+        self.other_actors.append(third_vehicle)
 
 
     def _create_behavior(self):
@@ -150,9 +161,22 @@ class BadMerge(BasicScenario):
         merge_left2.add_child(KeepVelocity(
             self.other_actors[1], self._first_vehicle_speed))
 
+        # NOTE: changed
+        merge_left3 = py_trees.composites.Sequence("Drive Straight")
+        merge_left3.add_child(InTriggerDistanceToVehicle(self.other_actors[2],
+                                                        self.ego_vehicles[0],
+                                                        distance=70,
+                                                        name="Distance"))
+
+        merge_left3.add_child(ChangeAutoPilot(self.other_actors[2], True,
+                                             parameters={"max_speed": self._first_vehicle_speed}))
+        merge_left3.add_child(KeepVelocity(
+        self.other_actors[2], self._first_vehicle_speed))
+
         # construct scenario
         driving_forward_and_change_lane.add_child(merge_left)
         driving_forward_and_change_lane.add_child(merge_left2)
+        driving_forward_and_change_lane.add_child(merge_left3)
         
 
         # end condition

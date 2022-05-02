@@ -59,7 +59,8 @@ class LeadCutIn(BasicScenario):
 
         self._map = CarlaDataProvider.get_map()
         self._first_vehicle_location = 22
-        self._first_vehicle_speed = 25
+        # NOTE: changed
+        self._first_vehicle_speed = 35
         self._reference_waypoint = self._map.get_waypoint(config.trigger_points[0].location)
         self._other_actor_max_brake = 1.0
         self._other_actor_stop_in_front_intersection = 20
@@ -90,7 +91,7 @@ class LeadCutIn(BasicScenario):
         Custom initialization
         """
 
-        ego_vehicle_waypoint = self.world.get_map().get_waypoint(self.ego_vehicles[0].get_location(), project_to_road=True, lane_type=carla.LaneType.Driving)
+        # ego_vehicle_waypoint = self.world.get_map().get_waypoint(self.ego_vehicles[0].get_location(), project_to_road=True, lane_type=carla.LaneType.Driving)
         
         # first_vehicle_waypoint, _ = get_waypoint_in_distance(self._reference_waypoint, self._first_vehicle_location)
         # self._other_actor_transform = carla.Transform(
@@ -116,11 +117,12 @@ class LeadCutIn(BasicScenario):
             transform.location + 5*transform.get_right_vector(),
             transform.rotation
         )
-        first_vehicle_transform = left_transform
+        # NOTE: changed
+        first_vehicle_transform = transform
         self._other_actor_transform = first_vehicle_transform
         # print("============ list: ", ego_vehicle_waypoint.next(30))
         print("============ first vehicle LeadCut: ", first_vehicle_transform)
-        first_vehicle = CarlaDataProvider.request_new_actor('vehicle.tesla.model3',
+        first_vehicle = CarlaDataProvider.request_new_actor('vehicle.tesla.cybertruck',
                                                             first_vehicle_transform)
         first_vehicle.set_simulate_physics(enabled=True)
         self.other_actors.append(first_vehicle)
@@ -164,7 +166,7 @@ class LeadCutIn(BasicScenario):
                                                                  distance_same_lane=0,
                                                                  distance_other_lane=200,
                                                                  distance_lane_change=11,
-                                                                 speed=10))
+                                                                 speed=25))
 
 
         # construct scenario
